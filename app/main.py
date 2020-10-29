@@ -1,6 +1,7 @@
 import sqlite3
 import json
 import os
+import plotperf
 
 from flask import Flask, request, send_file, redirect, url_for
 from connection.sqlite3_connection import Sqlite3Connection, sqlite3_call
@@ -12,8 +13,15 @@ app = Flask(__name__)
 @app.route("/")
 def main():
     index_path = os.path.join(app.static_folder, "index.html")
+    database_path = os.path.join(app.root_path, "database", "PerfResultsDB.db")
+    images_path = os.path.join(app.root_path, "generated_images")
+    plotperf.graph_traces(database_path, images_path)
     return send_file(index_path)
 
+@app.route("/generated_images/<path:path>")
+def images(path):
+    fullpath = "./generated_images/" + path
+    return send_file(fullpath, mimetype='image/png')
 
 @app.route('/favicon.ico')
 def favicon():
@@ -25,7 +33,7 @@ def run():
     """
     In this function the connection is open and closed with every call -> inefficient
     """
-    path = "./database/student.db"
+    path = "./database/PerfResultsDB.db"
     query = ""
 
     database = Sqlite3Connection(path)
