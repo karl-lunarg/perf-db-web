@@ -55,7 +55,7 @@ def images(path):
 
 @app.route('/favicon.ico')
 def favicon():
-    return redirect(url_for('static', filename='favicon.ico'))
+    return redirect(url_for('static', filename='LunarG-icon-blue-on-white.png'))
 
 
 @app.route("/run", methods=["POST", "GET"])

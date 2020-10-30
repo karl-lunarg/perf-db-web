@@ -1,10 +1,10 @@
 // some jquery methods to interact with index.html
 $(document).ready(function() {
     // example queries
-    var select_all_query = "SELECT * FROM student;";
-    var insert_query = "INSERT INTO student (name, nr) VALUES (\"Peter Pan\", 4444);";
-    var update_query = "UPDATE student SET name=\"Arnold Schwarzenegger\", nr=800 WHERE id=2;";
-    var delete_query = "DELETE FROM student WHERE id=1;";
+    var select_all_query = "SELECT * FROM results;";
+    var select_baseline_query = "SELECT * FROM results WHERE baseline=1;";
+    var select_latest_query = "SELECT *, max(date) AS latest FROM results GROUP BY tracename;";
+    var show_schema_query = "SELECT SQL FROM sqlite_master WHERE name = 'results'"
 
     var modal = document.getElementById("myModal");
     var modal_content = document.getElementById("modal_content");
@@ -15,16 +15,16 @@ $(document).ready(function() {
         $('#queryArea').val(select_all_query);
     });
 
-    $("#insert_query").click(function(event) {
-        $('#queryArea').val(insert_query);
+    $("#select_baseline_query").click(function(event) {
+        $('#queryArea').val(select_baseline_query);
     });
 
-    $("#update_query").click(function(event) {
-        $('#queryArea').val(update_query);
+    $("#select_latest_query").click(function(event) {
+        $('#queryArea').val(select_latest_query);
     });
 
-    $("#delete_query").click(function(event) {
-        $('#queryArea').val(delete_query);
+    $("#show_schema_query").click(function(event) {
+        $('#queryArea').val(show_schema_query);
     });
 
     // call the REST API and show results
