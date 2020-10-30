@@ -46,15 +46,18 @@ def graph_trace(conn, tracename, image_dir):
     plt.close()
 
 def graph_traces(db_file, image_dir):
+    trace_names = []
     conn = sqlite3.connect(db_file)
     c = conn.cursor()
     c.execute('SELECT DISTINCT TraceName FROM results')
     data = c.fetchall()
     for row in data:
-        tracename = row[0]
-        graph_trace(conn, tracename, image_dir)
+        trace_name = row[0]
+        graph_trace(conn, trace_name, image_dir)
+        trace_names.append(trace_name)
     c.close
     conn.close()
+    return trace_names
 
 if __name__ == '__main__':
     script_dir = os.path.dirname(os.path.realpath(__file__))
