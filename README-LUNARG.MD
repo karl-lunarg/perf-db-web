@@ -29,14 +29,34 @@ docker-compose --file docker-compose.override.yml --project-name val_perf build
 This should create a Docker image called `val_perf_web` which you can see with
 `docker images`.
 
-Then start the container with:
+### Database Installation
+
+Of course the web application needs to access a database outside the container.
+The application expects to find the database in `/app/database` within the
+container's file system. This repository includes a sample database in
+`/app/database` which can be used for bring-up purposes.  But you will want to
+use an external database file instead.
+
+The volume option on `docker run` "mounts" a host
+file system directory on top of a directory in the container's file system.  For
+example, this option mounts the host's `/mnt/perf_database` on top of the
+container's `/app/database` directory:
 
 ```sh
-docker run --rm --detach --publish 5080:80 --name perf val_perf_web
+--volume /mnt/perf_database:/app/database
 ```
 
-This configuration uses a sample database that is part of the GitHub repository.
-See below for hooking it up to an external database.
+ `/mnt/perf_database` may be a good place for a Linux machine to keep the
+ database because this could be where the Linux machine has mounted an
+ external file share that holds the database.
+
+### Starting the Server
+
+Start the container with:
+
+```sh
+docker run --rm --detach --publish 5080:80 --name perf --volume /mnt/perf_database:/app/database val_perf_web
+```
 
 This will start the server on port 5080 (`http://localhost:5080`).
 
@@ -48,22 +68,6 @@ docker stop perf
 
 and it is automatically removed from the active containers list because `--rm`
 was specified when starting it.
-
-### Database Installation
-
-Of course the web application needs to access a database outside the container.
-The application expects to find the database in `/app/database` within the
-container's filesystem. Use the volume option on `docker run` to "mount" a host
-filesystem directory on top of a directory in the container's filesystem.  For
-example, this option mounts the host's `/mnt/perf_database` on top of the
-container's `/app/database` directory:
-
-```sh
---volume /mnt/perf_database:/app/database
-```
- `/mnt/perf_database` may be a good place for a Linux machine to keep the
- database because this may be a place where the Linux machine has mounted an
- external file share that holds the database.
 
 ## Development
 
