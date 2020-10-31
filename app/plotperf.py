@@ -7,6 +7,7 @@ import random
 import matplotlib.pyplot as plt
 import matplotlib.dates as mdates
 from dateutil import parser
+from matplotlib.patches import Rectangle
 from matplotlib import style
 style.use('fivethirtyeight')
 
@@ -33,6 +34,9 @@ def graph_trace(conn, tracename, image_dir):
         baseline_dates = [min(dates), max(dates)]
         baseline_values = [FPS, FPS]
         plt.plot_date(baseline_dates, baseline_values, '-', label='baseline')
+        ax = plt.gca()
+        rect = Rectangle((min(dates),FPS * 0.95), max(dates) - min(dates), FPS * 0.05, color='green', alpha=0.5)
+        ax.add_patch(rect)
 
     plt.title(tracename, loc='left', fontsize=18)
     plt.title('on perfwinnvi', loc='right', fontsize=13)
