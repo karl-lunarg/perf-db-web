@@ -35,14 +35,35 @@ Then start the container with:
 docker run --rm --detach --publish 5080:80 --name perf val_perf_web
 ```
 
+This configuration uses a sample database that is part of the GitHub repository.
+See below for hooking it up to an external database.
+
 This will start the server on port 5080 (`http://localhost:5080`).
 
-## TO DO Database Installation
+The container can be stopped with:
 
-For now, we're using a copy of the performance data database for development
-that is checked into this repository and accessed by the web application.
-Eventually, we want the Docker container to use a volume to access the database
-file, which will be updated periodically outside of the container.
+```sh
+docker stop perf
+```
+
+and it is automatically removed from the active containers list because `--rm`
+was specified when starting it.
+
+### Database Installation
+
+Of course the web application needs to access a database outside the container.
+The application expects to find the database in `/app/database` within the
+container's filesystem. Use the volume option on `docker run` to "mount" a host
+filesystem directory on top of a directory in the container's filesystem.  For
+example, this option mounts the host's `/mnt/perf_database` on top of the
+container's `/app/database` directory:
+
+```sh
+--volume /mnt/perf_database:/app/database
+```
+ `/mnt/perf_database` may be a good place for a Linux machine to keep the
+ database because this may be a place where the Linux machine has mounted an
+ external file share that holds the database.
 
 ## Development
 
