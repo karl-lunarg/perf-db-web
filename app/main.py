@@ -12,8 +12,8 @@ app = Flask(__name__)
 # Tell the browser to not cache images
 @app.after_request
 def add_header(response):
-    response.cache_control.max_age = 0;
-    response.cache_control.public = True;
+    response.cache_control.max_age = 0
+    response.cache_control.public = True
     return response
 
 @app.route("/")
