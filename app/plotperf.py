@@ -11,31 +11,64 @@ from matplotlib.patches import Rectangle
 from matplotlib import style
 style.use('fivethirtyeight')
 
+
 def graph_trace(conn, tracename, image_dir):
     c = conn.cursor()
 
-    # Plot main data - Date of trace vs FPS
-    c.execute('SELECT Date, FPS FROM results WHERE TraceName = ' + '"' + tracename + '" ORDER BY Date DESC LIMIT 30')
+    # Plot master data - Date of trace vs FPS
+    # The checks for NULL are meant to include records before those columns were added.
+    # The NULL checks can be removed after there are more than 30 records with the new columns.
+    query = 'SELECT Date, FPS FROM results'
+    query += ' WHERE TraceName = ' + '"' + tracename + '"'
+    query += ' AND (VVLBranch = "master" OR VVLBranch IS NULL)'
+    query += ' AND (VVLRepo = "https://github.com/KhronosGroup/Vulkan-ValidationLayers.git" OR VVLRepo IS NULL)'
+    query += ' ORDER BY Date DESC LIMIT 30'
+    c.execute(query)
     data = c.fetchall()
-    dates = []
+    master_dates = []
     values = []
     for row in data:
-        dates.append(parser.parse(row[0]))
+        master_dates.append(parser.parse(row[0]))
         values.append(row[1])
-    plt.plot_date(dates, values, 'bo', label='trace')
+    plt.plot_date(master_dates, values, 'bo', label='master', color='blue')
+
+    # Plot developer submissions - only those within the range of the master data.
+    # We'll miss the ones that were made before the new columns were added, but that is OK.
+    start_date = min(master_dates)
+    query = 'SELECT Date, FPS FROM results'
+    query += ' WHERE TraceName = ' + '"' + tracename + '"'
+    query += ' AND'
+    query += '  ('
+    query += '   VVLBranch != "master"'
+    query += '   OR'
+    query += '   VVLRepo != "https://github.com/KhronosGroup/Vulkan-ValidationLayers.git"'
+    query += '  )'
+    query += ' AND Date >= ' + '"' + \
+        start_date.strftime("%Y-%m-%d %H:%M:%S") + '"'
+    c.execute(query)
+    data = c.fetchall()
+    dev_dates = []
+    values = []
+    for row in data:
+        dev_dates.append(parser.parse(row[0]))
+        values.append(row[1])
+    plt.plot_date(dev_dates, values, 'bo', label='developer', color='orange')
 
     # A "correct" database has exactly one result marked as the baseline.
     # Plot the baseline only if there is exactly one.
-    c.execute('SELECT FPS FROM results WHERE TraceName = "' + tracename + '" AND Baseline = 1')
+    c.execute('SELECT FPS FROM results WHERE TraceName = "' +
+              tracename + '" AND Baseline = 1')
     baseline_data = c.fetchall()
     if (len(baseline_data) == 1):
+        combined_dates = master_dates + dev_dates
         row = baseline_data[0]
         FPS = row[0]
-        baseline_dates = [min(dates), max(dates)]
+        baseline_dates = [min(combined_dates), max(combined_dates)]
         baseline_values = [FPS, FPS]
         plt.plot_date(baseline_dates, baseline_values, '-', label='baseline')
         ax = plt.gca()
-        rect = Rectangle((min(dates),FPS * 0.95), max(dates) - min(dates), FPS * 0.05, color='green', alpha=0.5)
+        rect = Rectangle((min(combined_dates), FPS * 0.95), max(combined_dates) -
+                         min(combined_dates), FPS * 0.05, color='green', alpha=0.5)
         ax.add_patch(rect)
 
     plt.title(tracename, loc='left', fontsize=18)
@@ -47,6 +80,7 @@ def graph_trace(conn, tracename, image_dir):
     plt.tight_layout()
     plt.savefig(os.path.join(image_dir, tracename + ".png"))
     plt.close()
+
 
 def graph_traces(db_file, image_dir):
     trace_names = []
@@ -61,6 +95,7 @@ def graph_traces(db_file, image_dir):
     c.close
     conn.close()
     return trace_names
+
 
 if __name__ == '__main__':
     script_dir = os.path.dirname(os.path.realpath(__file__))

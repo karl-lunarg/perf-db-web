@@ -11,6 +11,11 @@ The main purpose is to read a database containing performance stats and display
 them in with a web server.  The web server and associated components are all
 encapsulated in a Docker container.
 
+These instructions are for Linux.  It is unknown how well this would all work on
+Windows, but since it is Docker and most of the code is not platform-specific,
+there is a good change that it could run in a Docker container on Windows (not
+tried yet).
+
 ## Deployment
 
 Install:
@@ -71,6 +76,8 @@ was specified when starting it.
 
 ## Development
 
+### Inside of Docker (not the best)
+
 It is a bit tricky to work on the code in this environment because you can't
 change things easily in a running container and it is time consuming to stop,
 rebuild, and start containers.
@@ -86,6 +93,8 @@ from inside the container by adding `--volume pwd/app:/app` to the `docker
 run` command.  This works, except that I don't know how to get the python code
 to rebuild if it is changed.  It is possible to change `index.html` and see the
 changes take effect by refreshing the browser.  But this is not that useful.
+
+### Outside of the container (better)
 
 A better approach is to run the Flask app completely outside of the container,
 and thus, outside of Docker.  Watch out for port conflicts between running
