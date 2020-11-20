@@ -15,7 +15,7 @@ def graph_trace(conn, tracename, image_dir):
     c = conn.cursor()
 
     # Plot main data - Date of trace vs FPS
-    c.execute('SELECT Date, FPS FROM results WHERE TraceName = ' + '"' + tracename + '"')
+    c.execute('SELECT Date, FPS FROM results WHERE TraceName = ' + '"' + tracename + '" ORDER BY Date DESC LIMIT 30')
     data = c.fetchall()
     dates = []
     values = []
