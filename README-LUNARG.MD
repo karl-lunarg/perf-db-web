@@ -60,7 +60,7 @@ container's `/app/database` directory:
 Start the container with:
 
 ```sh
-docker run --rm --detach --publish 5080:80 --name perf --volume /mnt/perf_database:/app/database val_perf_web
+docker run --restart always --detach --publish 5080:80 --name perf --volume /mnt/perf_database:/app/database val_perf_web
 ```
 
 This will start the server on port 5080 (`http://localhost:5080`).
@@ -70,9 +70,6 @@ The container can be stopped with:
 ```sh
 docker stop perf
 ```
-
-and it is automatically removed from the active containers list because `--rm`
-was specified when starting it.
 
 ## Development
 
